@@ -1,42 +1,33 @@
 import streamlit as st
 import random
 import time
-import pandas as pd
 
-# =========================================================
-# 페이지 설정
-# =========================================================
 st.set_page_config(
     page_title="오늘 뭐 먹지? 🍽️",
-    page_icon="🎀",
+    page_icon="🍓",
     layout="centered"
 )
 
-# =========================================================
-# 귀여운 디자인
-# =========================================================
+# ============================================================
+# 디자인
+# ============================================================
+
 st.markdown("""
 <style>
-
 .stApp {
-    background:
-        radial-gradient(circle at 10% 10%, #ffe4ef 0, transparent 25%),
-        radial-gradient(circle at 90% 20%, #fff0bf 0, transparent 25%),
-        linear-gradient(180deg, #fff9fc 0%, #fffdf5 100%);
+    background: linear-gradient(180deg, #fff5f8 0%, #fffcef 100%);
 }
 
 .block-container {
     max-width: 760px;
     padding-top: 2rem;
-    padding-bottom: 4rem;
 }
 
-.main-title {
+.title {
     text-align: center;
-    font-size: 46px;
+    font-size: 45px;
     font-weight: 900;
     color: #ff668c;
-    margin-bottom: 3px;
 }
 
 .subtitle {
@@ -46,240 +37,227 @@ st.markdown("""
     margin-bottom: 30px;
 }
 
-/* 룰렛 */
-
-.roulette {
-    width: 240px;
-    height: 240px;
-    margin: 25px auto;
-    border-radius: 50%;
-
-    background:
-        conic-gradient(
-            #ffb7ca 0deg 45deg,
-            #ffe08a 45deg 90deg,
-            #bfe7d0 90deg 135deg,
-            #c9d8ff 135deg 180deg,
-            #e2c6ff 180deg 225deg,
-            #ffc9a9 225deg 270deg,
-            #ffdae7 270deg 315deg,
-            #fff0a8 315deg 360deg
-        );
-
-    border: 9px solid white;
-
-    box-shadow:
-        0 12px 30px rgba(255, 105, 145, 0.25),
-        inset 0 0 0 3px #ff91ad;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 75px;
-}
-
-.arrow {
-    text-align: center;
-    font-size: 42px;
-    height: 30px;
-    margin-bottom: -15px;
-}
-
-/* 결과 카드 */
-
-.result-card {
-    background: white;
-    border: 3px solid #ffb4c8;
-    border-radius: 28px;
-    padding: 28px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(255,100,140,0.14);
-    margin: 20px 0;
-}
-
-.result-small {
-    font-size: 17px;
-    color: #888;
-}
-
-.result-emoji {
-    font-size: 72px;
-}
-
-.result-name {
-    font-size: 38px;
-    font-weight: 900;
-    color: #ff5f87;
-}
-
-/* 식당 카드 */
-
-.restaurant-card {
-    background: white;
-    border: 2px solid #ffd0dc;
-    border-radius: 22px;
-    padding: 20px;
-    margin: 15px 0;
-    box-shadow: 0 6px 18px rgba(255,100,140,0.10);
-}
-
-.restaurant-name {
-    font-size: 23px;
-    font-weight: 800;
-    color: #ff668c;
-}
-
-.restaurant-info {
-    color: #666;
-    font-size: 15px;
-    margin-top: 6px;
-}
-
-.message {
-    background: #fff0f5;
-    padding: 15px;
-    border-radius: 18px;
-    text-align: center;
-    font-size: 16px;
-    margin-top: 15px;
-}
-
-/* 버튼 */
-
 div.stButton > button {
     width: 100%;
-    border: none;
-    border-radius: 18px;
-    padding: 12px;
-    font-size: 17px;
-    font-weight: 800;
-
-    background: linear-gradient(
-        90deg,
-        #ff91ad,
-        #ff7298
-    );
-
+    border-radius: 20px;
+    border: 0;
+    background: #ff86a5;
     color: white;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 12px;
 }
 
 div.stButton > button:hover {
+    background: #ff668c;
     color: white;
-    transform: scale(1.02);
 }
 
+[data-testid="stAlert"] {
+    border-radius: 20px;
+}
+
+.food-result {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 900;
+    color: #ff5f87;
+    padding: 15px;
+}
+
+.food-emoji {
+    text-align: center;
+    font-size: 80px;
+}
+
+.restaurant-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ff668c;
+}
 </style>
 """, unsafe_allow_html=True)
 
 
-# =========================================================
-# 메뉴
-# =========================================================
+# ============================================================
+# 메뉴 데이터
+# 메뉴 수 대폭 증가!
+# ============================================================
 
 menus = {
 
     "🍚 한식": [
-        ("🍜", "칼국수"),
-        ("🥣", "국밥"),
         ("🥘", "김치찌개"),
+        ("🍲", "부대찌개"),
+        ("🥣", "된장찌개"),
         ("🥩", "삼겹살"),
+        ("🍖", "갈비"),
         ("🌶️", "제육볶음"),
-        ("🍚", "비빔밥")
-    ],
-
-    "🍝 양식": [
-        ("🍝", "파스타"),
-        ("🍕", "피자"),
-        ("🍔", "햄버거"),
-        ("🥩", "스테이크")
-    ],
-
-    "🥟 중식": [
-        ("🍜", "짜장면"),
-        ("🌶️", "짬뽕"),
+        ("🐙", "쭈꾸미"),
+        ("🐔", "닭갈비"),
+        ("🍚", "비빔밥"),
+        ("🥣", "국밥"),
+        ("🥩", "소고기"),
+        ("🍜", "칼국수"),
+        ("🍜", "냉면"),
         ("🥟", "만두"),
-        ("🍖", "탕수육")
+        ("🐟", "생선구이"),
+        ("🍗", "찜닭"),
+        ("🥘", "순두부찌개"),
+        ("🍲", "감자탕"),
+        ("🍚", "돌솥밥"),
+        ("🍖", "보쌈")
     ],
 
     "🍣 일식": [
         ("🍣", "초밥"),
         ("🍜", "라멘"),
         ("🍱", "돈까스"),
-        ("🍛", "카레")
+        ("🍛", "카레"),
+        ("🍜", "우동"),
+        ("🍚", "규동"),
+        ("🍚", "덮밥"),
+        ("🍜", "소바"),
+        ("🍤", "텐동"),
+        ("🐟", "회"),
+        ("🍙", "유부초밥"),
+        ("🍗", "가라아게")
+    ],
+
+    "🥟 중식": [
+        ("🍜", "짜장면"),
+        ("🌶️", "짬뽕"),
+        ("🍖", "탕수육"),
+        ("🥟", "중국식 만두"),
+        ("🌶️", "마라탕"),
+        ("🌶️", "마라샹궈"),
+        ("🍚", "중화볶음밥"),
+        ("🥩", "고추잡채"),
+        ("🍲", "마파두부"),
+        ("🍜", "우육면")
+    ],
+
+    "🍝 양식": [
+        ("🍝", "파스타"),
+        ("🍕", "피자"),
+        ("🍔", "햄버거"),
+        ("🥩", "스테이크"),
+        ("🥗", "샐러드"),
+        ("🥪", "샌드위치"),
+        ("🌯", "브리또"),
+        ("🌮", "타코"),
+        ("🍚", "리조또"),
+        ("🥘", "필라프"),
+        ("🍳", "오므라이스")
     ],
 
     "🍗 분식/야식": [
         ("🌶️", "떡볶이"),
         ("🍗", "치킨"),
         ("🍙", "김밥"),
-        ("🍜", "라면")
+        ("🍜", "라면"),
+        ("🥟", "튀김"),
+        ("🌭", "핫도그"),
+        ("🍢", "어묵"),
+        ("🍚", "컵밥"),
+        ("🍳", "토스트")
+    ],
+
+    "🌏 이색 메뉴": [
+        ("🍛", "인도카레"),
+        ("🥙", "케밥"),
+        ("🌮", "멕시칸"),
+        ("🍜", "쌀국수"),
+        ("🍚", "팟타이"),
+        ("🥩", "샤브샤브"),
+        ("🔥", "훠궈"),
+        ("🥗", "포케")
     ]
 }
 
 
-# =========================================================
-# 음식점 데이터
+# ============================================================
+# 실제 둔산동 식당 데이터
 #
-# API를 사용하지 않기 때문에
-# 음식점 정보를 코드 안에 저장해두는 방식이야.
-#
-# 위도/경도는 지도 표시용 예시 위치로,
-# 추후 정확한 좌표로 더 추가/수정할 수 있어.
-# =========================================================
+# 여러 메뉴를 같은 식당과 연결할 수 있게 만들어둠.
+# ============================================================
 
 restaurants = {
 
     "칼국수": [
-        {
-            "name": "대선칼국수",
-            "address": "대전 서구 둔산중로40번길 28",
-            "lat": 36.3518,
-            "lon": 127.3868
-        }
+        ("🍜", "대선칼국수", "대전 서구 둔산중로40번길 28")
+    ],
+
+    "국밥": [
+        ("🥣", "태평소국밥 둔산점", "대전 서구 둔산동")
+    ],
+
+    "쭈꾸미": [
+        ("🐙", "손의손 본점", "대전 서구 둔산동")
     ],
 
     "초밥": [
-        {
-            "name": "시라스시",
-            "address": "대전 서구 둔산중로 54",
-            "lat": 36.3514,
-            "lon": 127.3860
-        }
+        ("🍣", "시라스시", "대전 서구 둔산중로 54")
     ],
 
-    "피자": [
-        {
-            "name": "리골레토 시카고피자 대전시청점",
-            "address": "대전 서구 둔산동",
-            "lat": 36.3517,
-            "lon": 127.3880
-        }
+    "유부초밥": [
+        ("🍙", "키츠네유부 둔산시청점", "대전 서구 둔산로 130")
     ],
 
-    "파스타": [
-        {
-            "name": "서가앤쿡 대전시청점",
-            "address": "대전 서구 둔산동",
-            "lat": 36.3515,
-            "lon": 127.3877
-        }
+    "짬뽕": [
+        ("🍜", "이비가짬뽕 시청점", "대전 서구 둔산동 1447"),
+        ("🍜", "첨아각", "대전 서구 둔산동 1448")
+    ],
+
+    "짜장면": [
+        ("🥢", "첨아각", "대전 서구 둔산동 1448")
+    ],
+
+    "탕수육": [
+        ("🍖", "첨아각", "대전 서구 둔산동 1448")
     ],
 
     "돈까스": [
-        {
-            "name": "하루엔소쿠",
-            "address": "대전 서구 둔산로123번길 18",
-            "lat": 36.3509,
-            "lon": 127.3872
-        }
+        ("🍱", "동백카츠 대전둔산점", "대전 서구 둔산동"),
+        ("🍱", "카이테키 대전점", "대전 서구 둔산동"),
+        ("🍱", "어메이징카츠", "대전 서구 둔산동"),
+        ("🍱", "별달돈까스카페", "대전 서구 둔산동")
+    ],
+
+    "파스타": [
+        ("🍝", "세서미하우스", "대전 서구 둔산동"),
+        ("🍝", "이태리국시", "대전 서구 둔산동")
+    ],
+
+    "피자": [
+        ("🍕", "이태리국시", "대전 서구 둔산동")
+    ],
+
+    "떡볶이": [
+        ("🌶️", "떡반집 본점", "대전 서구 둔산동")
+    ],
+
+    "햄버거": [
+        ("🍔", "다운타우너 대전갤러리아", "대전 서구 대덕대로 211")
+    ],
+
+    "인도카레": [
+        ("🍛", "인디 대전둔산점", "대전 서구 대덕대로 246")
+    ],
+
+    "덮밥": [
+        ("🍚", "갓지동", "대전 서구 둔산동 1310")
+    ],
+
+    "우동": [
+        ("🍜", "제면소의하루 둔산직영점", "대전 서구 둔산동 1433")
     ]
 }
 
 
-# =========================================================
-# 세션 상태
-# =========================================================
+# ============================================================
+# 세션
+# ============================================================
 
 if "result" not in st.session_state:
     st.session_state.result = None
@@ -288,256 +266,213 @@ if "count" not in st.session_state:
     st.session_state.count = 0
 
 
-# =========================================================
+# ============================================================
 # 제목
-# =========================================================
+# ============================================================
 
 st.markdown(
-    '<div class="main-title">🍓 오늘 뭐 먹지? 🍓</div>',
+    '<div class="title">🍓 오늘 뭐 먹지? 🍓</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">오늘의 저녁 메뉴를 룰렛에게 맡겨봐 ✨</div>',
+    '<div class="subtitle">저녁 고민은 귀여운 룰렛에게 맡겨버리자 🎀</div>',
     unsafe_allow_html=True
 )
 
 
-# =========================================================
-# 카테고리
-# =========================================================
+# ============================================================
+# 카테고리 선택
+# ============================================================
 
-st.markdown("### 🎀 어떤 음식이 땡겨?")
+st.markdown("### 🍴 오늘 뭐가 땡겨?")
 
 category = st.selectbox(
     "종류를 골라줘!",
-    ["🌎 아무거나"] + list(menus.keys())
+    ["🌎 진짜 아무거나!"] + list(menus.keys())
 )
 
 
-if category == "🌎 아무거나":
+if category == "🌎 진짜 아무거나!":
 
     candidates = []
 
-    for food_list in menus.values():
-        candidates.extend(food_list)
+    for menu_list in menus.values():
+        candidates.extend(menu_list)
 
 else:
 
     candidates = menus[category]
 
 
-with st.expander("🍴 룰렛에 들어간 메뉴 구경하기"):
+with st.expander("👀 룰렛 후보 메뉴 구경하기"):
 
-    names = [food[1] for food in candidates]
+    st.write(
+        " · ".join(
+            [name for emoji, name in candidates]
+        )
+    )
 
-    st.write(" · ".join(names))
 
+# ============================================================
+# 룰렛
+# ============================================================
 
 st.markdown("---")
 
+st.markdown("## 🎡 운명의 저녁 룰렛")
 
-# =========================================================
-# 룰렛
-# =========================================================
-
-st.markdown("### 🎡 운명의 저녁 룰렛")
-
-roulette_area = st.empty()
+roulette = st.empty()
 
 
 if st.session_state.result is None:
 
-    roulette_area.markdown("""
-<div class="arrow">▼</div>
-<div class="roulette">🍽️</div>
-""", unsafe_allow_html=True)
+    roulette.markdown(
+        """
+        <div style="
+            text-align:center;
+            font-size:100px;
+            padding:35px;
+        ">
+            🎡
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
-# =========================================================
-# 버튼
-# =========================================================
-
-if st.session_state.count == 0:
-
-    button_text = "🎡 룰렛 돌리기!"
-
-else:
-
-    button_text = "🎀 다시 돌려볼래!"
+button_text = (
+    "🎡 룰렛 돌리기!"
+    if st.session_state.count == 0
+    else "🎀 한 번만 더 돌릴래!"
+)
 
 
 if st.button(button_text):
 
     st.session_state.count += 1
 
-    spin_emojis = [
-        "🍕",
-        "🍔",
-        "🍜",
-        "🍣",
-        "🍗",
-        "🥘",
-        "🥟",
-        "🍝",
-        "🍛",
-        "🥩"
+    animation = [
+        "🍕", "🍜", "🍣", "🍔",
+        "🥘", "🍗", "🍛", "🥟",
+        "🌮", "🍝", "🥩", "🍚"
     ]
 
-    # 룰렛 애니메이션
     for i in range(18):
 
-        emoji = random.choice(spin_emojis)
-
-        roulette_area.markdown(
+        roulette.markdown(
             f"""
-<div class="arrow">▼</div>
-<div class="roulette">{emoji}</div>
-""",
+            <div style="
+                text-align:center;
+                font-size:100px;
+                padding:35px;
+            ">
+                {random.choice(animation)}
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
-        time.sleep(0.035 + i * 0.008)
+        time.sleep(0.025 + i * 0.006)
+
 
     st.session_state.result = random.choice(candidates)
 
     st.rerun()
 
 
-# =========================================================
+# ============================================================
 # 결과
-# =========================================================
+#
+# ★ 여기 중요 ★
+# 결과를 복잡한 HTML 카드 안에 넣지 않음.
+# 그래서 HTML 코드가 글자로 튀어나오는 문제를 줄임.
+# ============================================================
 
-if st.session_state.result:
+if st.session_state.result is not None:
 
     emoji, food = st.session_state.result
 
-    roulette_area.markdown(
-        f"""
-<div class="result-card">
-    <div class="result-small">
-        🎊 오늘의 저녁은...
-    </div>
+    roulette.empty()
 
-    <div class="result-emoji">
-        {emoji}
-    </div>
-
-    <div class="result-name">
-        {food}
-    </div>
-
-    <div class="result-small">
-        오늘은 이거 먹으러 가자 ♡
-    </div>
-</div>
-""",
+    st.markdown(
+        f'<div class="food-emoji">{emoji}</div>',
         unsafe_allow_html=True
     )
 
+    st.markdown(
+        f'<div class="food-result">{food} 당첨! 🎉</div>',
+        unsafe_allow_html=True
+    )
 
-    # =====================================================
-    # 다시 돌린 횟수에 따른 멘트
-    # =====================================================
+    st.success(
+        f"오늘 저녁은 {food} 어때? 💕"
+    )
+
+
+    # --------------------------------------------------------
+    # 재추첨 멘트
+    # --------------------------------------------------------
 
     count = st.session_state.count
 
     if count == 1:
-        message = "🍓 첫 번째 운명의 메뉴야!"
+        st.info("🍓 첫 번째 운명의 메뉴야!")
 
     elif count == 2:
-        message = "👀 아까 거는 마음에 안 들었나 봐..."
+        st.info("👀 첫 번째 메뉴는 마음에 안 들었나 봐...")
 
     elif count == 3:
-        message = "🤨 혹시 이미 먹고 싶은 거 정해둔 거 아니야?"
+        st.warning("🤨 혹시 먹고 싶은 게 이미 정해져 있는 거 아니야?")
 
     elif count == 4:
-        message = "🥹 룰렛의 의견도 존중해주세요..."
+        st.warning("🥹 룰렛의 의견도 조금만 존중해주세요...")
 
-    elif count == 5:
-        message = "🚨 메뉴 결정 능력 상실이 의심됩니다."
-
-    else:
-        message = "🫵 이제 진짜 이거 먹자."
-
-    st.markdown(
-        f'<div class="message">{message}</div>',
-        unsafe_allow_html=True
-    )
+    elif count >= 5:
+        st.error("🚨 메뉴 결정 능력 상실! 이제 진짜 이거 먹자ㅋㅋ")
 
 
-    # =====================================================
+    # ========================================================
     # 식당 추천
-    # =====================================================
+    # ========================================================
 
     st.markdown("---")
-
-    st.markdown("## 📍 이 메뉴 먹으러 어디 갈까?")
-
-    st.caption(
-        "대전 둔산동 시청역 근처에서 찾아봤어 💕"
-    )
+    st.markdown(f"## 📍 {food} 먹으러 어디 갈까?")
+    st.caption("대전 둔산동·시청역 주변에서 찾아봤어 🎀")
 
 
     if food in restaurants:
 
-        food_restaurants = restaurants[food]
+        choices = restaurants[food]
 
-        for restaurant in food_restaurants:
+        # 하나만 보여주는 것보다
+        # 있는 경우 최대 3곳까지 보여줌
+        for restaurant_emoji, name, address in choices[:3]:
 
-            st.markdown(
-                f"""
-<div class="restaurant-card">
-    <div class="restaurant-name">
-        🍴 {restaurant["name"]}
-    </div>
+            with st.container(border=True):
 
-    <div class="restaurant-info">
-        📍 {restaurant["address"]}
-    </div>
+                st.markdown(
+                    f"### {restaurant_emoji} {name}"
+                )
 
-    <div class="restaurant-info">
-        💕 오늘의 {food} 후보!
-    </div>
-</div>
-""",
-                unsafe_allow_html=True
-            )
+                st.write(f"📍 {address}")
 
-
-        # 지도 데이터
-        map_data = pd.DataFrame(
-            [
-                {
-                    "lat": r["lat"],
-                    "lon": r["lon"]
-                }
-                for r in food_restaurants
-            ]
-        )
-
-
-        st.markdown("### 🗺️ 여기쯤이야!")
-
-        st.map(
-            map_data,
-            latitude="lat",
-            longitude="lon",
-            zoom=15
-        )
-
+                st.caption(
+                    f"💕 {food} 먹고 싶을 때 가볼 수 있는 후보!"
+                )
 
     else:
 
+        # 식당 정보가 아직 연결되지 않은 메뉴
         st.info(
-            f"🍽️ {food} 맛집은 아직 지도에 등록되지 않았어! "
-            "다른 메뉴도 돌려봐 💕"
+            f"🥺 아직 {food}에 연결해 둔 식당이 없어!\n\n"
+            "그래도 메뉴는 맛있으니까 오늘의 후보로 찜 💕"
         )
 
 
-# =========================================================
-# 처음부터
-# =========================================================
+# ============================================================
+# 초기화
+# ============================================================
 
 st.markdown("---")
 
@@ -551,16 +486,17 @@ if st.button("🧹 처음부터 다시 고르기"):
 
 st.markdown(
     """
-<div style="
-    text-align:center;
-    color:#aaa;
-    font-size:13px;
-    margin-top:30px;
-">
-    🎀 오늘도 맛있는 저녁 먹기 🎀
-    <br>
-    🍓 맛있는 건 행복이야 🍓
-</div>
-""",
+    <div style="
+        text-align:center;
+        color:#aaa;
+        font-size:13px;
+        margin-top:30px;
+        padding-bottom:30px;
+    ">
+        🍓 오늘도 맛있는 저녁 먹기 🍓
+        <br>
+        🎀 맛있는 건 행복이야 🎀
+    </div>
+    """,
     unsafe_allow_html=True
 )
